@@ -1,5 +1,5 @@
 import React from 'react';
-import { api } from '../utils/api.jsx'
+import { api } from '../utils/api.js'
 import Card from './Card.jsx'
 
 function Main({ onEditAvatar, onEditProfile, onAddPlace, onCardClick }) {
