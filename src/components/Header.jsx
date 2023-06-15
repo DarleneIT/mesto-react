@@ -1,4 +1,4 @@
-import logoMesto from '../images/logo.svg';
+import logoMesto from "../images/logo.svg";
 
 function Header() {
   return (
@@ -7,5 +7,5 @@ function Header() {
     </header>
   );
 }
-  
+
 export default Header;
