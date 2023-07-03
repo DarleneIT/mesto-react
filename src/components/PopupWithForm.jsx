@@ -3,7 +3,7 @@ import React from "react";
 function PopupWithForm({
   name,
   title,
-  confirmation,
+  buttonText,
   children,
   isOpen,
   onClose,
@@ -22,14 +22,13 @@ function PopupWithForm({
           className="popup__form"
           name={`${name}`}
           onSubmit={onSubmit}
-          noValidate
         >
           {children}
           <button 
             className="popup__save" 
             type="submit" 
             aria-label="Сохранить">
-            {confirmation || "Сохранить"}
+            {buttonText || "Сохранить"}
           </button>
         </form>
       </div>

@@ -5,16 +5,18 @@ import Footer from "./Footer.jsx";
 import PopupWithForm from "./PopupWithForm.jsx";
 import ImagePopup from "./ImagePopup.jsx";
 import CurrentUserContext from "../contexts/CurrentUserContext.js";
+import AppContext from "../contexts/AppContext";
 import { useState, useEffect } from "react";
 import { api } from "../utils/api.js";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
-import AddPlacePopup from "./AddPlacePopup"
+import AddPlacePopup from "./AddPlacePopup";
 
 function App() {
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -42,31 +44,61 @@ function App() {
     setSelectedCard({});
   }
 
-  function handleUpdateUser(data) {
-    api
-      .setUserInfo({ name: data.name, about: data.about})
-      .then((res) => {
-        setCurrentUser(res);
+  const isOpen =
+    isEditAvatarPopupOpen ||
+    isEditProfilePopupOpen ||
+    isAddPlacePopupOpen ||
+    selectedCard.link;
+
+  useEffect(() => {
+    function closeByEscape(evt) {
+      if (evt.key === "Escape") {
         closeAllPopups();
-      })
-      .catch((error) => console.log(`Не удалось изменить данные ${error}`));
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("keydown", closeByEscape);
+      return () => {
+        document.removeEventListener("keydown", closeByEscape);
+      };
+    }
+  }, [isOpen]);
+
+  function handleSubmit(request) {
+    setIsLoading(true);
+    request()
+      .then(closeAllPopups)
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }
+
+  function handleUpdateUser(data) {
+    function makeRequest() {
+      return api
+        .setUserInfo({ name: data.name, about: data.about })
+        .then(setCurrentUser);
+    }
+    handleSubmit(makeRequest);
   }
 
   function handleUpdateAvatar(data) {
-    api
-       .setAvatar(data)
-       .then(setCurrentUser)
-       .then(closeAllPopups())
-       .catch((error) => console.log(`Не удалось изменить данные ${error}`));
- }
+    function makeRequest() {
+      return api
+        .setAvatar(data)
+        .then(setCurrentUser);
+    }
+    handleSubmit(makeRequest);
+  }
 
- function handleAddPlaceSubmit(data) {
-  api
-    .addCard(data)
-    .then((newCard) => {
-      setCards([newCard, ...cards]);
-      closeAllPopups();})
-    .catch((error) => console.log(`Не удалось загрузить данные ${error}`));
+  function handleAddPlaceSubmit(data) {
+    function makeRequest() {
+      return api
+        .addCard(data)
+        .then((newCard) => {
+        setCards([newCard, ...cards]);
+      });
+    }
+    handleSubmit(makeRequest);
   }
 
   function handleCardLike(card) {
@@ -111,8 +143,8 @@ function App() {
   }, []);
 
   return (
-    <CurrentUserContext.Provider value={currentUser}>
-      <>
+    <AppContext.Provider value={{ isLoading, closeAllPopups }}>
+      <CurrentUserContext.Provider value={currentUser}>
         <Header />
         <Main
           onEditAvatar={handleEditAvatarClick}
@@ -129,12 +161,14 @@ function App() {
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
           onUpdateUser={handleUpdateUser}
+          onLoading={isLoading}
         />
 
-        <AddPlacePopup 
-          isOpen={isAddPlacePopupOpen} 
+        <AddPlacePopup
+          isOpen={isAddPlacePopupOpen}
           onClose={closeAllPopups}
           onAddPlace={handleAddPlaceSubmit}
+          onLoading={isLoading}
         />
 
         <PopupWithForm
@@ -142,20 +176,19 @@ function App() {
           title="Вы уверены?"
           confirmation="Да"
           onClose={closeAllPopups}
+          onLoading={isLoading}
         />
 
         <EditAvatarPopup
           isOpen={isEditAvatarPopupOpen}
           onClose={closeAllPopups}
           onUpdateAvatar={handleUpdateAvatar}
+          onLoading={isLoading}
         />
 
-        <ImagePopup
-          card={selectedCard}
-          onClose={closeAllPopups}
-        />
-      </>
-    </CurrentUserContext.Provider>
+        <ImagePopup card={selectedCard} onClose={closeAllPopups} />
+      </CurrentUserContext.Provider>
+    </AppContext.Provider>
   );
 }
 

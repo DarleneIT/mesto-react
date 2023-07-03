@@ -2,7 +2,7 @@ import PopupWithForm from "./PopupWithForm";
 import { useContext, useEffect, useRef } from "react";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
-function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar }) {
+function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar, onLoading }) {
   const currentUser = useContext(CurrentUserContext);
   const avatarRef = useRef();
 
@@ -28,6 +28,7 @@ function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar }) {
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
+      buttonText={onLoading ? 'Сохранение...' : 'Сохранить'}
     >
       <input
         ref={avatarRef}

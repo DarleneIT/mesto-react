@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import useForm from "../utils/useForm.js";
 
 
-function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
+function AddPlacePopup({ isOpen, onClose, onAddPlace, onLoading }) {
   const { values, handleChange, setValues } = useForm({});
 
   function handleSubmit(event) {
@@ -29,6 +29,7 @@ function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
+      buttonText={onLoading ? 'Создание...' : 'Создать'}
     >
       <input
         className="popup__field popup__field_type_title"

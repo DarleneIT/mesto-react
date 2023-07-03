@@ -2,7 +2,7 @@ import PopupWithForm from "./PopupWithForm";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 import { useContext, useState, useEffect } from 'react';
 
-function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
+function EditProfilePopup({ isOpen, onClose, onUpdateUser, onLoading }) {
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState('');
@@ -11,7 +11,7 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
   useEffect(() => {
     setName(currentUser.name); 
     setDescription(currentUser.about);
-  }, [currentUser]);
+  }, [currentUser, isOpen]);
 
   function changeName(event) {
     setName(event.target.value);
@@ -36,6 +36,7 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
       onClose={onClose}
       name="profile-popup"
       title="Редактировать профиль"
+      buttonText={onLoading ? 'Сохранение...' : 'Сохранить'}
     >
       <input
         onChange={changeName}
